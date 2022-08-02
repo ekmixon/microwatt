@@ -42,53 +42,45 @@ sim_provides = {
     "pp_soc_uart" : "sim_pp_uart.vhdl"
 }
 
-if synth:
-    provides = synth_provides
-else:
-    provides = sim_provides
-
+provides = synth_provides if synth else sim_provides
 dependencies = defaultdict(set)
 
 for filename in args:
     with open(filename, 'r') as f:
         for line in f:
             l = line.rstrip(os.linesep)
-            m = entity.search(l)
-            if m:
-                p = m.group(1)
+            if m := entity.search(l):
+                p = m[1]
                 if p not in provides:
                     provides[p] = filename
 
-            m = package.search(l)
-            if m:
-                p = m.group(1)
+            if m := package.search(l):
+                p = m[1]
                 if p not in provides:
                     provides[p] = filename
 
-            m = work.search(l)
-            if m:
-                dependency = m.group(1)
+            if m := work.search(l):
+                dependency = m[1]
                 dependencies[filename].add(dependency)
 
-            m = entity_work.search(l)
-            if m:
-                dependency = m.group(1)
+            if m := entity_work.search(l):
+                dependency = m[1]
                 dependencies[filename].add(dependency)
 
 
 emitted = set()
 def chase_dependencies(filename):
-    if filename not in dependencies:
-        if filename not in emitted:
-            print("%s " % (filename), end="")
-            emitted.add(filename)
-    else:
+    if filename in dependencies:
         for dep in dependencies[filename]:
             f = provides[dep]
             chase_dependencies(f)
             if f not in emitted:
-                print("%s " % (f), end="")
+                print(f"{f} ", end="")
                 emitted.add(f)
+
+    elif filename not in emitted:
+        print(f"{filename} ", end="")
+        emitted.add(filename)
 
 
 if synth:
@@ -97,9 +89,9 @@ if synth:
 else:
     for filename in dependencies:
         (basename, suffix) = filename.split('.')
-        print("%s.o:" % (basename), end="")
+        print(f"{basename}.o:", end="")
         for dependency in dependencies[filename]:
             p = provides[dependency]
             (basename2, suffix2) = p.split('.')
-            print(" %s.o" % (basename2), end="")
+            print(f" {basename2}.o", end="")
         print("")

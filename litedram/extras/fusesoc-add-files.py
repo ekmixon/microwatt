@@ -17,10 +17,8 @@ class LiteDRAMGenerator(Generator):
 
         print("Adding LiteDRAM for board... ", board)
 
-        # Add files to fusesoc
-        files = []
         f = os.path.join(gen_dir, "litedram_core.v")
-        files.append({f : {'file_type' : 'verilogSource'}})
+        files = [{f: {'file_type' : 'verilogSource'}}]
         f = os.path.join(gen_dir, "litedram-initmem.vhdl")
         files.append({f : {'file_type' : 'vhdlSource-2008'}})
         f = os.path.join(gen_dir, "litedram_core.init")

@@ -14,11 +14,8 @@ class LiteEthGenerator(Generator):
 
         print("Adding LiteEth for board... ", board)
 
-        # Add files to fusesoc
-        files = []
         f = os.path.join(gen_dir, "liteeth_core.v")
-        files.append({f : {'file_type' : 'verilogSource'}})
-
+        files = [{f: {'file_type' : 'verilogSource'}}]
         self.add_files(files)
 
 g = LiteEthGenerator()

@@ -83,7 +83,7 @@ def generate_one(t):
     t_dir = make_new_dir(gen_dir, t)
 
     # Grab config file
-    cfile = os.path.join(gen_src_dir, t  + ".yml")
+    cfile = os.path.join(gen_src_dir, f"{t}.yml")
     core_config = yaml.load(open(cfile).read(), Loader=yaml.Loader)
 
     ### TODO: Make most stuff below a function in litedram gen.py and
@@ -93,7 +93,7 @@ def generate_one(t):
     # Convert YAML elements to Python/LiteX
     for k, v in core_config.items():
         replaces = {"False": False, "True": True, "None": None}
-        for r in replaces.keys():
+        for r in replaces:
             if v == r:
                 core_config[k] = replaces[r]
         if "clk_freq" in k:
@@ -111,7 +111,7 @@ def generate_one(t):
     elif core_config["sdram_phy"] in [litedram_phys.A7DDRPHY, litedram_phys.K7DDRPHY, litedram_phys.V7DDRPHY]:
         platform = XilinxPlatform("", io=[], toolchain="vivado")
     else:
-        raise ValueError("Unsupported SDRAM PHY: {}".format(core_config["sdram_phy"]))
+        raise ValueError(f'Unsupported SDRAM PHY: {core_config["sdram_phy"]}')
 
     soc      = LiteDRAMCore(platform, core_config, is_sim = is_sim, integrated_rom_size=0x6000)
 
@@ -131,7 +131,7 @@ def generate_one(t):
     core_file = os.path.join(gw_dir, "litedram_core.v")
     dst_init_file = os.path.join(t_dir, initfile_name)
     dst_initram_file = os.path.join(t_dir, "litedram-initmem.vhdl")
-    shutil.copyfile(src_init_file, dst_init_file)    
+    shutil.copyfile(src_init_file, dst_init_file)
     shutil.copyfile(src_initram_file, dst_initram_file)
     if is_sim:
         initfile_path = os.path.join("litedram", "generated", "sim", initfile_name)
